@@ -1,0 +1,8 @@
+prefix=/home/anazar1/catkin_ws/install
+
+Name: dynamic_astar_planner
+Description: Description of dynamic_astar_planner
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

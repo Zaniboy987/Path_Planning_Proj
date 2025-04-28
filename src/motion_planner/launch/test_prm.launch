@@ -1,0 +1,11 @@
+<launch>
+  <!-- Launch Gazebo with empty world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+  </include>
+
+  <!-- Run the PRM test script -->
+  <node name="prm_rrt_test" pkg="motion_planner" type="prm_rrt_test.py" output="screen"/>
+</launch>

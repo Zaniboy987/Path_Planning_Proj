@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find jackal_gazebo)/launch/jackal_world.launch"/>
+  <node name="astar_planner" pkg="motion_planner" type="astar_planner.py" output="screen"/>
+</launch>
