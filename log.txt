@@ -1,0 +1,2 @@
+Method: PRM, Time: 0.1261 sec, Collisions: 3
+Method: PRM, Time: 0.1224 sec, Collisions: 1

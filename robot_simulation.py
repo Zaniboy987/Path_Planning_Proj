@@ -18,7 +18,7 @@ class RobotSim:
         self.collision_count = 0
 
     def spawn_robot(self, position):
-        self.robot = p.loadURDF("turtlebot3/turtlebot3_description/urdf/turtlebot3_burger.urdf", position)
+        self.robot = p.loadURDF("turtlebot3_description/urdf/turtlebot3_burger.urdf", position)
         #self.robot = p.loadURDF("sphere2.urdf", position)
 
     def spawn_obstacle(self, position, size=(0.5, 0.5, 0.5)):
