@@ -5,7 +5,7 @@ from prm import sample_points, build_roadmap, PRM
 from rrt import RRT
 
 def run_test(method="PRM"):
-    sim = RobotSim(gui=False)
+    sim = RobotSim(gui=True)
 
     start = np.array([0, 0, 0.2])
     goal = np.array([5, 5, 0.2])
