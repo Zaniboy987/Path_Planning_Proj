@@ -1,4 +1,5 @@
 import numpy as np
+import pybullet as p
 import heapq
 
 def sample_points(n_samples, bounds):
@@ -7,14 +8,29 @@ def sample_points(n_samples, bounds):
 def euclidean(p1, p2):
     return np.linalg.norm(p1 - p2)
 
-def build_roadmap(samples, radius):
+def build_roadmap(samples, radius, sim):
     edges = {}
     for i, p in enumerate(samples):
         edges[i] = []
         for j, q in enumerate(samples):
             if i != j and euclidean(p, q) < radius:
-                edges[i].append(j)
+                if is_collision_free(sim, p, q):
+                    edges[i].append(j)
     return edges
+
+def is_collision_free(sim, p1, p2, step_size=0.05):
+    dist = np.linalg.norm(p2 - p1)
+    steps = max(1, int(dist / step_size))  # Ensure at least one step
+
+    for i in range(steps + 1):
+        interp = p1 + (p2 - p1) * (i / steps)
+        p.resetBasePositionAndOrientation(sim.robot, interp, [0, 0, 0, 1])
+        p.stepSimulation()
+        for obs in sim.obstacles:
+            if p.getContactPoints(sim.robot, obs):
+                return False
+    return True
+
 
 def PRM(samples, edges, start_idx, goal_idx):
     frontier = [(0, start_idx)]

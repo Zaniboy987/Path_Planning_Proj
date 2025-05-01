@@ -37,7 +37,7 @@ class RobotSim:
             p.resetBasePositionAndOrientation(self.robot, waypoint, [0, 0, 0, 1])
             self.check_collisions()
             p.stepSimulation()
-            time.sleep(0.05)
+            #time.sleep(0.01)
 
     def get_obstacle_ids(self):
         return self.obstacle_ids  # returns list of obstacle body IDs
