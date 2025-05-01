@@ -14,9 +14,17 @@ def run_test(method="PRM"):
         sim.spawn_robot(start)
 
         # Random obstacles
-        for _ in range(10):
+        """for _ in range(10):
             pos = np.random.uniform([0, 0, 0.2], [5, 5, 0.2])
+            sim.spawn_obstacle(pos)"""
+        # Spawn 2 moving obstacles
+        moving_obstacle_positions = [np.random.uniform([0, 0, 0.2], [5, 5, 0.2]) for _ in range(3)]
+        for pos in moving_obstacle_positions:
             sim.spawn_obstacle(pos)
+
+        # Assign random velocities to obstacles
+        obstacle_velocities = [np.random.uniform([-0.1, -0.1, 0], [0.1, 0.1, 0]) for _ in range(3)]
+
 
         t0 = time.time()
 
@@ -38,7 +46,7 @@ def run_test(method="PRM"):
             plan_time = t1 - t0
 
             # Move Robot
-            sim.move_robot(path)
+            sim.move_robot(path, obstacle_velocities)
 
             # Output logs
             with open("log.txt", "a") as f:

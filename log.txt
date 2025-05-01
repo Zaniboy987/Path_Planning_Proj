@@ -1,2 +1,0 @@
-Method: RRT, Time: 0.1931 sec, Collisions: 1
-Method: PRM, Time: 9.4946 sec, Collisions: 0

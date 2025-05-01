@@ -32,12 +32,26 @@ class RobotSim:
                                         basePosition=position)
         self.obstacles.append(obstacle_id)
 
-    def move_robot(self, path):
+    def move_obstacle(self, obstacle_id, new_position):
+        p.resetBasePositionAndOrientation(obstacle_id, new_position, [0, 0, 0, 1])
+
+    def update_moving_obstacles(self, obstacle_velocities):
+        for i, obs_id in enumerate(self.obstacles):
+            pos, _ = p.getBasePositionAndOrientation(obs_id)
+            new_pos = [pos[j] + obstacle_velocities[i][j] for j in range(3)]
+            # Keep within bounds [0, 5] for x, y
+            new_pos = [max(0, min(5, new_pos[0])), max(0, min(5, new_pos[1])), pos[2]]
+            self.move_obstacle(obs_id, new_pos)
+
+
+    def move_robot(self, path, obstacle_velocities=None):
         for waypoint in path:
             p.resetBasePositionAndOrientation(self.robot, waypoint, [0, 0, 0, 1])
             self.check_collisions()
+            if obstacle_velocities:
+                self.update_moving_obstacles(obstacle_velocities)
             p.stepSimulation()
-            #time.sleep(0.01)
+            time.sleep(0.5)
 
     def get_obstacle_ids(self):
         return self.obstacle_ids  # returns list of obstacle body IDs
