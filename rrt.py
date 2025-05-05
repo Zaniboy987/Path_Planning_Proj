@@ -22,7 +22,7 @@ def is_collision_free(sim, p1, p2, step_size=0.05):
                 return False
     return True
 
-def RRT(start, goal, bounds, sim, n_iter=250, step_size=0.5):
+def RRT(start, goal, bounds, sim, n_iter=400, step_size=0.5):
     nodes = [Node(start)]
 
     for _ in range(n_iter):

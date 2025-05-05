@@ -1,5 +1,6 @@
 import pybullet as p
 import pybullet_data
+import numpy as np
 import time
 
 class RobotSim:
@@ -32,6 +33,12 @@ class RobotSim:
                                         basePosition=position)
         self.obstacles.append(obstacle_id)
 
+    def compute_path_distance(self, path):
+        distance = 0.0
+        for i in range(1, len(path)):
+            distance += np.linalg.norm(np.array(path[i]) - np.array(path[i - 1]))
+        return distance
+
     def move_obstacle(self, obstacle_id, new_position):
         p.resetBasePositionAndOrientation(obstacle_id, new_position, [0, 0, 0, 1])
 
@@ -44,14 +51,29 @@ class RobotSim:
             self.move_obstacle(obs_id, new_pos)
 
 
-    def move_robot(self, path, obstacle_velocities=None):
-        for waypoint in path:
+    def move_robot(self, path, obstacle_velocities=None, sim_context=None, goal=None, method="RRT"):
+        for i, waypoint in enumerate(path):
             p.resetBasePositionAndOrientation(self.robot, waypoint, [0, 0, 0, 1])
             self.check_collisions()
             if obstacle_velocities:
                 self.update_moving_obstacles(obstacle_velocities)
             p.stepSimulation()
             time.sleep(0.5)
+
+            # Replan if collision happened
+            if self.collision_count > 0 and sim_context and goal is not None:
+                print("Collision detected. Replanning...")
+                pos, _ = p.getBasePositionAndOrientation(self.robot)
+                start = np.array(pos)
+                if method == "RRT":
+                    new_path = RRT(start, goal, np.array([[0, 0, 0.2], [5, 5, 0.2]]), sim_context)
+                else:
+                    # PRM replanning here if desired
+                    new_path = []  # placeholder
+                self.collision_count = 0  # reset
+                self.move_robot(new_path, obstacle_velocities, sim_context, goal, method)
+                return
+
 
     def get_obstacle_ids(self):
         return self.obstacle_ids  # returns list of obstacle body IDs

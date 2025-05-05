@@ -17,7 +17,7 @@ def run_test(method="PRM"):
         """for _ in range(10):
             pos = np.random.uniform([0, 0, 0.2], [5, 5, 0.2])
             sim.spawn_obstacle(pos)"""
-        # Spawn 2 moving obstacles
+        # Spawn 3 moving obstacles
         moving_obstacle_positions = [np.random.uniform([0, 0, 0.2], [5, 5, 0.2]) for _ in range(3)]
         for pos in moving_obstacle_positions:
             sim.spawn_obstacle(pos)
@@ -46,11 +46,12 @@ def run_test(method="PRM"):
             plan_time = t1 - t0
 
             # Move Robot
-            sim.move_robot(path, obstacle_velocities)
+            path_distance = sim.compute_path_distance(path)
+            sim.move_robot(path, obstacle_velocities, sim_context=sim, goal=goal, method=method)
 
             # Output logs
             with open("log.txt", "a") as f:
-                f.write(f"Method: {method}, Time: {plan_time:.4f} sec, Collisions: {sim.collision_count}\n")
+                f.write(f"Method: {method}, Time: {plan_time:.4f} sec, Distance: {path_distance:.4f}, Collisions: {sim.collision_count}\n")
 
             sim.disconnect()
             break  # Exit loop after successful run
