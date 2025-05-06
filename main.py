@@ -6,7 +6,7 @@ from rrt import RRT
 
 def run_test(method="PRM"):
     while True:  # Keep retrying until a valid path is found
-        sim = RobotSim(gui=True)
+        sim = RobotSim(gui=False)
 
         start = np.array([0, 0, 0.2])
         goal = np.array([5, 5, 0.2])
@@ -18,12 +18,12 @@ def run_test(method="PRM"):
             pos = np.random.uniform([0, 0, 0.2], [5, 5, 0.2])
             sim.spawn_obstacle(pos)"""
         # Spawn 3 moving obstacles
-        moving_obstacle_positions = [np.random.uniform([0, 0, 0.2], [5, 5, 0.2]) for _ in range(3)]
+        moving_obstacle_positions = [np.random.uniform([0, 0, 0.2], [5, 5, 0.2]) for _ in range(4)]
         for pos in moving_obstacle_positions:
             sim.spawn_obstacle(pos)
 
         # Assign random velocities to obstacles
-        obstacle_velocities = [np.random.uniform([-0.1, -0.1, 0], [0.1, 0.1, 0]) for _ in range(3)]
+        obstacle_velocities = [np.random.uniform([-0.1, -0.1, 0], [0.1, 0.1, 0]) for _ in range(4)]
 
 
         t0 = time.time()
@@ -63,7 +63,7 @@ def run_test(method="PRM"):
 
 if __name__ == "__main__":
     # You can switch between "PRM" and "RRT"
-    for i in range(1):
+    for i in range(50):
         run_test("RRT")
-    for i in range(1):
+    for i in range(20):
         run_test("PRM")

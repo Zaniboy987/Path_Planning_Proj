@@ -20,13 +20,10 @@ class RobotSim:
 
     def spawn_robot(self, position):
         self.robot = p.loadURDF("turtlebot3_description/urdf/turtlebot3_burger.urdf", position)
-        #self.robot = p.loadURDF("sphere2.urdf", position)
 
     def spawn_obstacle(self, position, size=(0.5, 0.5, 0.5)):
-        visual_shape_id = p.createVisualShape(shapeType=p.GEOM_BOX,
-                                               halfExtents=size)
-        collision_shape_id = p.createCollisionShape(shapeType=p.GEOM_BOX,
-                                                    halfExtents=size)
+        visual_shape_id = p.createVisualShape(shapeType=p.GEOM_BOX, halfExtents=size)
+        collision_shape_id = p.createCollisionShape(shapeType=p.GEOM_BOX, halfExtents=size)
         obstacle_id = p.createMultiBody(baseMass=0,
                                         baseCollisionShapeIndex=collision_shape_id,
                                         baseVisualShapeIndex=visual_shape_id,
@@ -46,10 +43,24 @@ class RobotSim:
         for i, obs_id in enumerate(self.obstacles):
             pos, _ = p.getBasePositionAndOrientation(obs_id)
             new_pos = [pos[j] + obstacle_velocities[i][j] for j in range(3)]
-            # Keep within bounds [0, 5] for x, y
             new_pos = [max(0, min(5, new_pos[0])), max(0, min(5, new_pos[1])), pos[2]]
             self.move_obstacle(obs_id, new_pos)
 
+    def is_collision_free(self, p1, p2, step_size=0.05):
+        dist = np.linalg.norm(p2 - p1)
+        steps = max(1, int(dist / step_size))
+
+        for i in range(steps + 1):
+            interp = p1 + (p2 - p1) * (i / steps)
+            p.resetBasePositionAndOrientation(self.robot, interp, [0, 0, 0, 1])
+            p.stepSimulation()
+            collisions_this_step = 0
+            for obs in self.obstacles:
+                if p.getContactPoints(self.robot, obs):
+                    collisions_this_step += 1
+            if collisions_this_step > 0:
+                return False
+        return True
 
     def move_robot(self, path, obstacle_velocities=None, sim_context=None, goal=None, method="RRT"):
         for i, waypoint in enumerate(path):
@@ -58,34 +69,15 @@ class RobotSim:
             if obstacle_velocities:
                 self.update_moving_obstacles(obstacle_velocities)
             p.stepSimulation()
-            time.sleep(0.5)
+            #time.sleep(0.5)
 
-            # Replan if collision happened
-            if self.collision_count > 0 and sim_context and goal is not None:
-                print("Collision detected. Replanning...")
-                pos, _ = p.getBasePositionAndOrientation(self.robot)
-                start = np.array(pos)
-                if method == "RRT":
-                    new_path = RRT(start, goal, np.array([[0, 0, 0.2], [5, 5, 0.2]]), sim_context)
-                else:
-                    # PRM replanning here if desired
-                    new_path = []  # placeholder
-                self.collision_count = 0  # reset
-                self.move_robot(new_path, obstacle_velocities, sim_context, goal, method)
-                return
-
-
-    def get_obstacle_ids(self):
-        return self.obstacle_ids  # returns list of obstacle body IDs
-
-    def get_obstacle_aabb(self, obstacle_id):
-        return self.p.getAABB(obstacle_id)
+            if self.collision_count > 0:
+                print(f"Collision occurred at step {i + 1}. Total collisions so far: {self.collision_count}")
 
 
     def check_collisions(self):
         for obs in self.obstacles:
-            contact_points = p.getContactPoints(self.robot, obs)
-            if len(contact_points) > 0:
+            if p.getContactPoints(self.robot, obs):
                 self.collision_count += 1
 
     def disconnect(self):
